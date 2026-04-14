@@ -1,6 +1,6 @@
 import { Response } from "express"
 import { AuthRequest } from "../../middlewares/auth/auth.middleware.js"
-import { createNewProduct, selectAllProducts } from "./products.service.js";
+import { createNewProduct, deleteProduct, findProduct, selectAllProducts } from "./products.service.js";
 import { Product } from "../../models/product.model.js";
 
 
@@ -41,5 +41,21 @@ export const updateOne = async (req: AuthRequest, res: Response) => {
 }
 
 export const deleteOne = async (req: AuthRequest, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+    if (!id) return res.status(400).json({ message: "Invalid ID" });
 
-}
+    const product = await findProduct(id);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+    
+    await deleteProduct(id);
+
+    return res.status(200).json({
+      message: "Product deleted successfully",
+    });
+
+  } catch (error) {
+    console.error("DELETE PRODUCT ERROR:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

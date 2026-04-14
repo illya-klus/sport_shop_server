@@ -14,3 +14,13 @@ export const createNewProduct = async (product : CreateNewProduct) => {
     );
     return newProduct;
 }
+
+export const deleteProduct = async (id: number) => {
+  return await prisma.product.delete({
+    where: { id },
+  });
+};
+
+export const findProduct = async (id : number) => {
+    return await prisma.product.findUnique({where:{id}})
+}
