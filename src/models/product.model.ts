@@ -11,7 +11,7 @@ export type Product = {
     createdAt: Date;
     updatedAt: Date;
 }
-export type CreateNewProduct = {
+export type ProductInfoParams = {
     brand: string;
     title: string;
     description: string;

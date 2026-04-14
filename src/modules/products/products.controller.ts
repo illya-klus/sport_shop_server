@@ -1,6 +1,6 @@
 import { Response } from "express"
 import { AuthRequest } from "../../middlewares/auth/auth.middleware.js"
-import { createNewProduct, deleteProduct, findProduct, selectAllProducts } from "./products.service.js";
+import { createNewProduct, deleteProduct, findProduct, selectAllProducts, updateProduct } from "./products.service.js";
 import { Product } from "../../models/product.model.js";
 
 
@@ -37,7 +37,27 @@ export const createOne = async (req: AuthRequest, res: Response) => {
 }
 
 export const updateOne = async (req: AuthRequest, res: Response) => {
+    try{
+        const id = Number(req.params.id);
+        if (!id) return res.status(400).json({ message: "Invalid ID" });
 
+        const product = await findProduct(id);
+        if (!product) return res.status(404).json({ message: "Product not found" });
+
+        const newProduct = {
+            ...req.body
+        }
+
+        await updateProduct(id, newProduct);
+
+        return res.status(201).json({
+            message: "Product updated successfully",
+        });
+
+    } catch (error){
+        console.error("UPDATE PRODUCT ERROR:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
 }
 
 export const deleteOne = async (req: AuthRequest, res: Response) => {
