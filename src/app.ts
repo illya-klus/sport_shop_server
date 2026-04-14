@@ -4,6 +4,7 @@ import { AuthRouter } from "./modules/auth/auth.router.js";
 import { AuthMiddleware, AuthRequest } from "./middlewares/auth/auth.middleware.js";
 dotenv.config();
 import cookieParser from "cookie-parser";
+import { ProductsRouter } from "./modules/products/products.router.js";
 
 
 
@@ -13,6 +14,7 @@ app.use(cookieParser());
 
 
 app.use("/auth", AuthRouter);
+app.use("/products", ProductsRouter);
 app.get("/testauth", AuthMiddleware, (req: AuthRequest, res: Response) => {
     return res.status(200).json(req.user);
 })
