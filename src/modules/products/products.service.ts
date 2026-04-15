@@ -1,5 +1,5 @@
 import { prisma } from "../../lib/prisma.js"
-import { ProductInfoParams } from "../../models/product.model.js";
+import { ProductInfoParams } from "../../types/product.model.js";
 
 
 export const selectAllProducts = async () => {

@@ -6,6 +6,7 @@ dotenv.config();
 import cookieParser from "cookie-parser";
 import { ProductsRouter } from "./modules/products/products.router.js";
 import { CartRouter } from "./modules/cart/cart.router.js";
+import { CartItemRouter } from "./modules/cartItem/cartItem.router.js";
 
 
 
@@ -18,6 +19,7 @@ app.use(cookieParser());
 app.use("/auth", AuthRouter);
 app.use("/products", AuthMiddleware, ProductsRouter);
 app.use("/cart", AuthMiddleware, CartRouter);
+app.use("/cart/items", AuthMiddleware, CartItemRouter)
 
 
 

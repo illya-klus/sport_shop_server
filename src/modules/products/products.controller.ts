@@ -1,7 +1,7 @@
 import { Response } from "express"
 import { AuthRequest } from "../../middlewares/auth/auth.middleware.js"
 import { createNewProduct, deleteProduct, findProduct, selectAllProducts, updateProduct } from "./products.service.js";
-import { Product } from "../../models/product.model.js";
+import { Product } from "../../types/product.model.js";
 
 
 
