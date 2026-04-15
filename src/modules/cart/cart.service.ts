@@ -15,8 +15,8 @@ export const createCartForUser = async (id : number) => {
     return await prisma.cart.create({data:{userId : id}});
 }
 
-export const deleteCartByUserId = async (id : number) => {
-    await prisma.cart.deleteMany({
-        where: { userId: id }
+export const clearCartItemsByUserId = async (userId : number) => {
+    await prisma.cartItem.deleteMany({
+        where: { cart: { userId } }
     });
 }

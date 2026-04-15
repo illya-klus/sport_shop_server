@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import { ProductsRouter } from "./modules/products/products.router.js";
 import { CartRouter } from "./modules/cart/cart.router.js";
 import { CartItemRouter } from "./modules/cartItem/cartItem.router.js";
+import { OrderRouter } from "./modules/order/order.router.js";
 
 
 
@@ -19,8 +20,8 @@ app.use(cookieParser());
 app.use("/auth", AuthRouter);
 app.use("/products", AuthMiddleware, ProductsRouter);
 app.use("/cart", AuthMiddleware, CartRouter);
-app.use("/cart/items", AuthMiddleware, CartItemRouter)
-
+app.use("/cart/items", AuthMiddleware, CartItemRouter);
+app.use("/order", AuthMiddleware, OrderRouter);
 
 
 const PORT = process.env.PORT || 5000;

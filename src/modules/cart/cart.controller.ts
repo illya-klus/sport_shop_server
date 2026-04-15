@@ -1,6 +1,6 @@
 import { AuthRequest } from "../../middlewares/auth/auth.middleware.js"
 import { Response } from "express"
-import { createCartForUser, deleteCartByUserId, getCartByUserId } from "./cart.service.js";
+import { createCartForUser, clearCartItemsByUserId, getCartByUserId } from "./cart.service.js";
 
 
 
@@ -28,7 +28,7 @@ export const clearCart = async (req: AuthRequest, res: Response) => {
         const id = req.user?.id;
         if(!id) return res.status(401).json({ message: "Unauthorized" });
         
-        await deleteCartByUserId(id);
+        await clearCartItemsByUserId(id);
         return res.sendStatus(204);
         
     } catch (e){
