@@ -26,7 +26,8 @@ model User {
   role     Role    @default(USER)
   image    String?
 
-  cart Cart?
+  cart   Cart?
+  orders Order[]
 }
 
 model Product {
@@ -71,4 +72,57 @@ model CartItem {
   count Int @default(1)
 
   @@unique([cartId, productId])
+}
+
+enum orderStatuses {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELED
+}
+
+enum OrderType {
+  NovaPoshta
+  Courier
+  Pickup
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+
+  fullName    String
+  town        String
+  viddilennya Int?
+  number      String
+
+  totalPrice Int
+  currency   String @default("USD")
+
+  status       orderStatuses @default(PENDING)
+  deliveryType OrderType
+
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  orderItems OrderItem[]
+}
+
+model OrderItem {
+  id Int @id @default(autoincrement())
+
+  orderId Int
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId Int
+
+  productTitle String
+  productBrand String
+
+  priceAtPurchase Int
+  count           Int
+
+  @@unique([orderId, productId])
 }

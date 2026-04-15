@@ -1,4 +1,4 @@
-import express, { Response } from "express";
+import express from "express";
 import dotenv from "dotenv";
 import { AuthRouter } from "./modules/auth/auth.router.js";
 import { AuthMiddleware } from "./middlewares/auth/auth.middleware.js";
