@@ -7,7 +7,7 @@ export const AuthRouter = Router();
 
 AuthRouter.post("/login", loginMiddleware, login);
 
-AuthRouter.post("/register",registerMiddleware, register);
+AuthRouter.post("/register", registerMiddleware, register);
 
 AuthRouter.post("/refresh", refresh);
 

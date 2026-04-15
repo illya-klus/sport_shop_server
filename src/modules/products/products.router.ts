@@ -11,7 +11,7 @@ export const ProductsRouter = Router();
 ProductsRouter.get("/", AuthMiddleware, getAll);
 // ProductsRouter.get("/:id", getOne);
 
-ProductsRouter.post("/", AuthMiddleware, AdminMiddleware, ValidateProductRequest, createOne);
-ProductsRouter.put("/:id", AuthMiddleware, AdminMiddleware, updateOne);
-ProductsRouter.delete("/:id", AuthMiddleware, AdminMiddleware, deleteOne);
+ProductsRouter.post("/", AdminMiddleware, ValidateProductRequest, createOne);
+ProductsRouter.put("/:id", AdminMiddleware, updateOne);
+ProductsRouter.delete("/:id", AdminMiddleware, deleteOne);
 
