@@ -6,7 +6,7 @@ export const getCartByUserId = async (id : number) => {
     const cart = await prisma.cart.findUnique({where:{userId : id}});
     if (!cart) return null;
 
-    const cartItems = await prisma.cartItem.findMany({where:{cartId : cart.id}});
+    const cartItems = await prisma.cartItem.findMany({where:{cartId : cart.id}, include: { product: true }});
 
     return {...cart, cartItems};
 } 
