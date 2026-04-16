@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import { AuthRouter } from "./modules/auth/auth.router.js";
 import { AuthMiddleware } from "./middlewares/auth/auth.middleware.js";
@@ -12,13 +13,19 @@ import { OrderRouter } from "./modules/order/order.router.js";
 
 
 const app = express();
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true, 
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
 
 
 app.use("/auth", AuthRouter);
-app.use("/products", AuthMiddleware, ProductsRouter);
+app.use("/products", ProductsRouter);
 app.use("/cart", AuthMiddleware, CartRouter);
 app.use("/cart/items", AuthMiddleware, CartItemRouter);
 app.use("/order", AuthMiddleware, OrderRouter);

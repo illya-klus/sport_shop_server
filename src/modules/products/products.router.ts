@@ -8,7 +8,7 @@ import { AdminMiddleware } from "../../middlewares/auth/auth.admin.middleware.js
 
 export const ProductsRouter = Router();
 
-ProductsRouter.get("/", AuthMiddleware, getAll);
+ProductsRouter.get("/", getAll);
 // ProductsRouter.get("/:id", getOne);
 
 ProductsRouter.post("/", AdminMiddleware, ValidateProductRequest, createOne);
