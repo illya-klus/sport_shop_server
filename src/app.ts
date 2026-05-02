@@ -16,8 +16,9 @@ const swaggerDocument = YAML.load("./swagger.yaml");
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "http://localhost:5000"
-] 
+  "http://localhost:5000",
+  "https://sport-shop-client-neon.vercel.app/"
+]
 
 
 const app = express();
