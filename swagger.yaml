@@ -1,0 +1,975 @@
+openapi: 3.0.3
+info:
+  title: Sport Shop Server API
+  version: 1.0.0
+  description: API documentation generated from the Express routers in this project.
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+tags:
+  - name: Auth
+    description: Authentication and token refresh endpoints
+  - name: Products
+    description: Product catalog endpoints
+  - name: Cart
+    description: Authenticated user cart endpoints
+  - name: Cart Items
+    description: Authenticated cart item endpoints
+  - name: Orders
+    description: Authenticated order endpoints
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Log in a user
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful. A refreshToken cookie is also set.
+          headers:
+            Set-Cookie:
+              description: HttpOnly refresh token cookie.
+              schema:
+                type: string
+                example: refreshToken=jwt; HttpOnly; SameSite=Strict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
+          $ref: "#/components/responses/BadRequestText"
+        "401":
+          description: Invalid credentials.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Invalid credentials.
+        "500":
+          $ref: "#/components/responses/InternalServerErrorText"
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Register a user
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPublic"
+        "400":
+          $ref: "#/components/responses/BadRequestText"
+        "409":
+          description: User already exists.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: User already exists.
+        "500":
+          $ref: "#/components/responses/InternalServerErrorText"
+  /auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: Create a new access token from the refresh token cookie
+      operationId: refresh
+      responses:
+        "200":
+          description: New access token generated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshResponse"
+        "401":
+          description: Missing, invalid, or unmatched refresh token.
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                noRefreshToken:
+                  value: No refresh token
+                invalidRefreshToken:
+                  value: Invalid refresh token
+                userNotFound:
+                  value: User not found
+        "500":
+          $ref: "#/components/responses/InternalServerErrorText"
+  /products:
+    get:
+      tags:
+        - Products
+      summary: Get all products
+      operationId: getAllProducts
+      responses:
+        "200":
+          description: Products loaded successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - count
+                  - products
+                properties:
+                  count:
+                    type: integer
+                    example: 2
+                  products:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Product"
+        "500":
+          description: Cannot load products.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Caanot load products.
+    post:
+      tags:
+        - Products
+      summary: Create a product
+      operationId: createProduct
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductCreateRequest"
+      responses:
+        "203":
+          description: Product created.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Created
+        "400":
+          description: Product payload is invalid.
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                invalidData:
+                  value: Invalid data sent.
+                invalidPrice:
+                  value: Invalid price
+                invalidStock:
+                  value: Invalid stock
+                invalidDiscount:
+                  value: Invalid discount
+        "401":
+          $ref: "#/components/responses/UnauthorizedText"
+        "403":
+          $ref: "#/components/responses/ForbiddenText"
+        "500":
+          description: Cannot create product.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Cannot create user.
+  /products/{id}:
+    put:
+      tags:
+        - Products
+      summary: Update a product
+      operationId: updateProduct
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdateRequest"
+      responses:
+        "201":
+          description: Product updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+              example:
+                message: Product updated successfully
+        "400":
+          description: Invalid product ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+              example:
+                message: Invalid ID
+        "401":
+          $ref: "#/components/responses/UnauthorizedText"
+        "403":
+          $ref: "#/components/responses/ForbiddenText"
+        "404":
+          description: Product not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+              example:
+                message: Product not found
+        "500":
+          $ref: "#/components/responses/InternalServerErrorJson"
+    delete:
+      tags:
+        - Products
+      summary: Delete a product
+      operationId: deleteProduct
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      responses:
+        "200":
+          description: Product deleted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+              example:
+                message: Product deleted successfully
+        "400":
+          description: Invalid product ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+              example:
+                message: Invalid ID
+        "401":
+          $ref: "#/components/responses/UnauthorizedText"
+        "403":
+          $ref: "#/components/responses/ForbiddenText"
+        "404":
+          description: Product not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+              example:
+                message: Product not found
+        "500":
+          $ref: "#/components/responses/InternalServerErrorJson"
+  /cart:
+    get:
+      tags:
+        - Cart
+      summary: Get the current user's cart
+      operationId: getCart
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user's cart.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Cart"
+                  - $ref: "#/components/schemas/CartWithItems"
+        "401":
+          $ref: "#/components/responses/UnauthorizedJson"
+        "500":
+          description: Cannot load cart.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+              example:
+                message: Cannot load cart.
+  /cart/clear:
+    delete:
+      tags:
+        - Cart
+      summary: Clear the current user's cart
+      operationId: clearCart
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Cart cleared.
+        "401":
+          $ref: "#/components/responses/UnauthorizedJson"
+        "500":
+          description: Cannot clear cart.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+              example:
+                message: Cannot clear cart.
+  /cart/items:
+    post:
+      tags:
+        - Cart Items
+      summary: Add an item to the current user's cart
+      operationId: addItemToCart
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CartItemCreateRequest"
+      responses:
+        "201":
+          description: Cart item created or updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartItem"
+        "400":
+          description: Cart item payload is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+              examples:
+                required:
+                  value:
+                    message: count and productId are required
+                type:
+                  value:
+                    message: count and productId must be numbers
+                count:
+                  value:
+                    message: count must be greater than 0
+                productId:
+                  value:
+                    message: invalid productId
+        "401":
+          $ref: "#/components/responses/UnauthorizedJson"
+        "500":
+          description: Failed to add item.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+              example:
+                message: Fail to add item to cart
+  /cart/items/{id}:
+    delete:
+      tags:
+        - Cart Items
+      summary: Delete or decrement an item from the current user's cart
+      operationId: deleteItemFromCart
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Cart item ID.
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Item deleted or decremented.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+              example:
+                message: Item deleted
+        "400":
+          description: Invalid cart item ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+              example:
+                message: Invalid cart item id
+        "401":
+          $ref: "#/components/responses/UnauthorizedJson"
+        "500":
+          description: Failed to delete item.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+              example:
+                message: Fail to delete item to cart
+  /order:
+    post:
+      tags:
+        - Orders
+      summary: Create an order from the current user's cart
+      operationId: createOrder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderRequest"
+      responses:
+        "200":
+          description: Order created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          description: Invalid order data or empty cart.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/MessageResponse"
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+              examples:
+                emptyCart:
+                  value:
+                    message: Cart is empty
+                invalidOrderData:
+                  value:
+                    message: Invalid order data
+                    errors:
+                      fieldErrors:
+                        fullName:
+                          - Too small: expected string to have >=1 characters
+                      formErrors: []
+        "401":
+          $ref: "#/components/responses/UnauthorizedJson"
+        "500":
+          description: Cannot form order.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+              example:
+                message: "Server error: Cannot form order"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    IdPathParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+  responses:
+    BadRequestText:
+      description: Invalid request payload.
+      content:
+        text/plain:
+          schema:
+            type: string
+    UnauthorizedText:
+      description: Missing or invalid access token.
+      content:
+        text/plain:
+          schema:
+            type: string
+          examples:
+            missing:
+              value: No token provided
+            invalid:
+              value: Invalid token
+    UnauthorizedJson:
+      description: Missing, invalid, or unauthorized access token.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MessageResponse"
+          example:
+            message: Unauthorized
+        text/plain:
+          schema:
+            type: string
+          examples:
+            missing:
+              value: No token provided
+            invalid:
+              value: Invalid token
+    ForbiddenText:
+      description: Authenticated user is not allowed to perform this action.
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Forbidden
+    InternalServerErrorText:
+      description: Internal server error.
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Internal server error
+    InternalServerErrorJson:
+      description: Internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MessageResponse"
+          example:
+            message: Internal server error
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: password123
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - name
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        name:
+          type: string
+          example: John Doe
+        password:
+          type: string
+          format: password
+          example: password123
+    LoginResponse:
+      type: object
+      required:
+        - accessToken
+        - user
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        user:
+          $ref: "#/components/schemas/UserPublic"
+    RefreshResponse:
+      type: object
+      required:
+        - accessToken
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    UserPublic:
+      type: object
+      required:
+        - id
+        - name
+        - email
+        - role
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        role:
+          $ref: "#/components/schemas/Role"
+        image:
+          type: string
+          nullable: true
+          example: https://example.com/avatar.png
+    Role:
+      type: string
+      enum:
+        - USER
+        - ADMIN
+    Product:
+      type: object
+      required:
+        - id
+        - brand
+        - title
+        - description
+        - price
+        - stock
+        - currency
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+          example: 1
+        brand:
+          type: string
+          example: Nike
+        title:
+          type: string
+          example: Air Zoom Pegasus
+        description:
+          type: string
+          example: Lightweight running shoes.
+        price:
+          type: integer
+          minimum: 1
+          example: 120
+        stock:
+          type: integer
+          minimum: 0
+          example: 15
+        discount:
+          type: integer
+          minimum: 0
+          maximum: 100
+          nullable: true
+          example: 10
+        currency:
+          type: string
+          example: USD
+        image:
+          type: string
+          nullable: true
+          example: https://example.com/product.png
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ProductCreateRequest:
+      type: object
+      required:
+        - brand
+        - title
+        - description
+        - price
+        - currency
+      properties:
+        brand:
+          type: string
+          example: Nike
+        title:
+          type: string
+          example: Air Zoom Pegasus
+        description:
+          type: string
+          example: Lightweight running shoes.
+        price:
+          type: number
+          minimum: 1
+          example: 120
+        stock:
+          type: number
+          minimum: 0
+          example: 15
+        discount:
+          type: number
+          minimum: 0
+          maximum: 100
+          nullable: true
+          example: 10
+        currency:
+          type: string
+          example: USD
+        image:
+          type: string
+          nullable: true
+          example: https://example.com/product.png
+    ProductUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        brand:
+          type: string
+          example: Nike
+        title:
+          type: string
+          example: Air Zoom Pegasus
+        description:
+          type: string
+          example: Lightweight running shoes.
+        price:
+          type: number
+          minimum: 1
+          example: 120
+        stock:
+          type: number
+          minimum: 0
+          example: 15
+        discount:
+          type: number
+          minimum: 0
+          maximum: 100
+          nullable: true
+          example: 10
+        currency:
+          type: string
+          example: USD
+        image:
+          type: string
+          nullable: true
+          example: https://example.com/product.png
+    Cart:
+      type: object
+      required:
+        - id
+        - userId
+      properties:
+        id:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 1
+    CartWithItems:
+      allOf:
+        - $ref: "#/components/schemas/Cart"
+        - type: object
+          required:
+            - cartItems
+          properties:
+            cartItems:
+              type: array
+              items:
+                $ref: "#/components/schemas/CartItemWithProduct"
+    CartItem:
+      type: object
+      required:
+        - id
+        - productId
+        - cartId
+        - count
+      properties:
+        id:
+          type: integer
+          example: 1
+        productId:
+          type: integer
+          example: 2
+        cartId:
+          type: integer
+          example: 1
+        count:
+          type: integer
+          minimum: 1
+          example: 3
+    CartItemWithProduct:
+      allOf:
+        - $ref: "#/components/schemas/CartItem"
+        - type: object
+          required:
+            - product
+          properties:
+            product:
+              $ref: "#/components/schemas/Product"
+    CartItemCreateRequest:
+      type: object
+      required:
+        - count
+        - productId
+      properties:
+        count:
+          type: number
+          minimum: 1
+          example: 1
+        productId:
+          type: number
+          minimum: 1
+          example: 2
+    CreateOrderRequest:
+      type: object
+      required:
+        - fullName
+        - town
+        - number
+        - deliveryType
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+          example: John Doe
+        town:
+          type: string
+          minLength: 1
+          example: Kyiv
+        viddilennya:
+          type: number
+          nullable: true
+          example: 12
+        number:
+          type: string
+          minLength: 5
+          example: "+380501234567"
+        currency:
+          type: string
+          default: USD
+          example: USD
+        deliveryType:
+          $ref: "#/components/schemas/DeliveryType"
+    Order:
+      type: object
+      required:
+        - id
+        - userId
+        - fullName
+        - town
+        - number
+        - totalPrice
+        - currency
+        - status
+        - deliveryType
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 1
+        fullName:
+          type: string
+          example: John Doe
+        town:
+          type: string
+          example: Kyiv
+        viddilennya:
+          type: integer
+          nullable: true
+          example: 12
+        number:
+          type: string
+          example: "+380501234567"
+        totalPrice:
+          type: integer
+          example: 240
+        currency:
+          type: string
+          example: USD
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+        deliveryType:
+          $ref: "#/components/schemas/DeliveryType"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        orderItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+    OrderItem:
+      type: object
+      required:
+        - id
+        - orderId
+        - productId
+        - productTitle
+        - productBrand
+        - priceAtPurchase
+        - count
+      properties:
+        id:
+          type: integer
+          example: 1
+        orderId:
+          type: integer
+          example: 1
+        productId:
+          type: integer
+          example: 2
+        productTitle:
+          type: string
+          example: Air Zoom Pegasus
+        productBrand:
+          type: string
+          example: Nike
+        priceAtPurchase:
+          type: integer
+          example: 120
+        count:
+          type: integer
+          minimum: 1
+          example: 2
+    OrderStatus:
+      type: string
+      enum:
+        - PENDING
+        - PAID
+        - SHIPPED
+        - DELIVERED
+        - CANCELED
+    DeliveryType:
+      type: string
+      enum:
+        - NovaPoshta
+        - Courier
+        - Pickup
+    MessageResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Unauthorized
+    ValidationErrorResponse:
+      type: object
+      required:
+        - message
+        - errors
+      properties:
+        message:
+          type: string
+          example: Invalid order data
+        errors:
+          type: object
+          properties:
+            fieldErrors:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+            formErrors:
+              type: array
+              items:
+                type: string
