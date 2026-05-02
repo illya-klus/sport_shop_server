@@ -9,8 +9,12 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
+  "include": [
+    "src/**/*.ts"
+  ],
   "exclude": [
     "node_modules",
-    "generated"
+    "src/generated",
+    "prisma.config.ts"
   ]
 }
