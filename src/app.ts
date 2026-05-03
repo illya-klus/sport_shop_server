@@ -17,7 +17,7 @@ const swaggerDocument = YAML.load("./swagger.yaml");
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5000",
-  "https://sportua.vercel.app/"
+  "https://sportua.vercel.app"
 ]
 
 
