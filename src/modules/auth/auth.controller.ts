@@ -29,6 +29,7 @@ export const login = async (req: Request, res: Response) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
+            domain:"sportua.vercel.app"
           })
           .status(200)
           .json({
